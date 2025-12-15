@@ -86,6 +86,7 @@ export const sendMessageToGemini = async (message: string): Promise<AgentRespons
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
+        maxOutputTokens: 2000, // Limit token usage to prevent infinite loops
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -111,7 +112,9 @@ export const sendMessageToGemini = async (message: string): Promise<AgentRespons
     });
 
     if (response.text) {
-      return JSON.parse(response.text) as AgentResponse;
+      // Remove potential markdown code blocks
+      const cleanText = response.text.replace(/```json\n?|```/g, '').trim();
+      return JSON.parse(cleanText) as AgentResponse;
     }
     
     throw new Error("Empty response from Gemini");
