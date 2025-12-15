@@ -12,11 +12,17 @@ export default function App() {
   
   // App Data State
   const [pendingRequests, setPendingRequests] = useState(0);
+  
+  // Initialize with simulated date (Dec 15, 2025)
+  const SIMULATED_TODAY = new Date('2025-12-15');
+  const SIMULATED_TOMORROW = new Date(SIMULATED_TODAY);
+  SIMULATED_TOMORROW.setDate(SIMULATED_TODAY.getDate() + 1);
+
   const [formData, setFormData] = useState<LeaveRequestData>({
     name: 'Mohamed Mamdouh',
     leaveType: 'Annual Leave',
-    startDate: 'Nov 3',
-    endDate: 'Nov 5',
+    startDate: SIMULATED_TODAY.toISOString().split('T')[0],
+    endDate: SIMULATED_TOMORROW.toISOString().split('T')[0],
     reason: 'Personal time off'
   });
 
@@ -55,7 +61,8 @@ export default function App() {
   // --- Handlers ---
 
   const handleSendMessage = async () => {
-    if (!inputText.trim() || agentStatus !== AgentStatus.IDLE) return;
+    // Allow sending if status is IDLE or COMPLETE
+    if (!inputText.trim() || (agentStatus !== AgentStatus.IDLE && agentStatus !== AgentStatus.COMPLETE)) return;
 
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -83,14 +90,44 @@ export default function App() {
       // 1. Intent
       setCurrentIntent(geminiData.intent);
 
-      // Update form data if leave details are present
+      // Update form data smartly with validation
       if (geminiData.leaveDetails) {
-        setFormData(prev => ({
-          ...prev,
-          startDate: geminiData.leaveDetails?.startDate || prev.startDate,
-          endDate: geminiData.leaveDetails?.endDate || prev.endDate,
-          leaveType: geminiData.leaveDetails?.leaveType || prev.leaveType,
-        }));
+        setFormData(prev => {
+          let newStart = geminiData.leaveDetails?.startDate;
+          let newEnd = geminiData.leaveDetails?.endDate;
+          const newType = geminiData.leaveDetails?.leaveType;
+
+          // Date Validation Logic
+          // 1. Parse dates (assuming YYYY-MM-DD from Gemini)
+          const startDateObj = newStart ? new Date(newStart) : null;
+          const endDateObj = newEnd ? new Date(newEnd) : null;
+          
+          // 2. Validate Start Date >= Simulated Today
+          if (startDateObj && startDateObj < SIMULATED_TODAY) {
+            // If the requested start date is in the past, correct it to Today
+            newStart = SIMULATED_TODAY.toISOString().split('T')[0];
+          }
+
+          // 3. Smart End Date Logic
+          if (newStart && !newEnd) {
+             // If start exists but no end, default to 1 day (End = Start)
+             newEnd = newStart;
+          } else if (newStart && newEnd && endDateObj && startDateObj) {
+             // 4. Validate End Date >= Start Date
+             // Note: Re-parsing newStart in case it was corrected above
+             const correctedStartObj = new Date(newStart);
+             if (endDateObj < correctedStartObj) {
+                newEnd = newStart;
+             }
+          }
+          
+          return {
+            ...prev,
+            startDate: newStart || prev.startDate,
+            endDate: newEnd || prev.endDate,
+            leaveType: newType || prev.leaveType,
+          };
+        });
       }
       
       // 2. Planning
@@ -109,8 +146,7 @@ export default function App() {
 
       // 5. Complete & Check for Form Trigger
       await new Promise(r => setTimeout(r, 600));
-      setAgentStatus(AgentStatus.COMPLETE);
-
+      
       // Check if we should trigger a form action based on intent
       const isLeaveRequest = geminiData.intent.toLowerCase().includes('leave') || 
                              geminiData.intent.toLowerCase().includes('request');
@@ -126,18 +162,19 @@ export default function App() {
       };
       
       setMessages(prev => [...prev, botMsg]);
+
     } catch (error) {
-      console.error("Error processing agent response:", error);
-      // Reset status so the user can try again
-      setAgentStatus(AgentStatus.IDLE);
-      
+      console.error("Error in agent workflow:", error);
       const errorMsg: Message = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: "I apologize, but I encountered an unexpected error while processing your request. Please try again.",
+        content: "I encountered a system error while processing your request. Please try again.",
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      // ALWAYS unlock the UI
+      setAgentStatus(AgentStatus.COMPLETE);
     }
   };
 

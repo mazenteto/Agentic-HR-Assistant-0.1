@@ -1,5 +1,5 @@
 {
-  "name": "Agentic HR Assistant 0.1.0",
+  "name": "Agentic HR Assistant",
   "description": "A multi-agent HR assistant that simulates intent classification, planning, and execution before responding.",
   "requestFramePermissions": []
 }

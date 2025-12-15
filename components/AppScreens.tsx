@@ -133,7 +133,7 @@ export const FormScreen = ({
       {/* AI Banner */}
       <div className="bg-indigo-50 px-6 py-3 border-b border-indigo-100 flex items-center gap-3">
         <Sparkles className="w-5 h-5 text-indigo-600" />
-        <p className="text-sm text-indigo-800 font-medium">AI has pre-filled this form based on your chat. Review and edit as needed.</p>
+        <p className="text-sm text-indigo-800 font-medium">AI has pre-filled this form based on your chat.</p>
       </div>
 
       <div className="p-8">
@@ -145,8 +145,8 @@ export const FormScreen = ({
             <input 
               type="text" 
               value={data.name} 
-              onChange={(e) => onChange('name', e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-800 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all" 
+              readOnly 
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-800 font-medium" 
             />
           </div>
 
@@ -156,7 +156,7 @@ export const FormScreen = ({
                type="text" 
                value={data.leaveType} 
                onChange={(e) => onChange('leaveType', e.target.value)}
-               className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all" 
+               className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
              />
           </div>
 
@@ -167,7 +167,7 @@ export const FormScreen = ({
                  type="text" 
                  value={data.startDate} 
                  onChange={(e) => onChange('startDate', e.target.value)}
-                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all" 
+                 className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
                />
             </div>
             <div>
@@ -176,7 +176,7 @@ export const FormScreen = ({
                  type="text" 
                  value={data.endDate} 
                  onChange={(e) => onChange('endDate', e.target.value)}
-                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all" 
+                 className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
                />
             </div>
           </div>
@@ -213,7 +213,6 @@ export const SuccessScreen = ({ onBack, data }: { onBack: () => void, data: Leav
       </div>
       <div className="text-left">
         <p className="text-xs text-gray-500 uppercase font-semibold">Notifier Agent</p>
-        {/* UPDATED: Specific email address */}
         <p className="text-sm text-gray-800">I've sent a confirmation email to mohamed.mamdouh@linkdev.com.</p>
       </div>
     </div>

@@ -13,6 +13,10 @@ const SYSTEM_INSTRUCTION = `
 You are an AI HR Assistant designed with an Agentic AI architecture. 
 You are composed of four distinct internal agents working together.
 
+CURRENT DATE SIMULATION:
+- TODAY IS: Monday, December 15, 2025.
+- All relative dates (e.g. "tomorrow", "next week") MUST be calculated relative to 2025-12-15.
+
 GENERAL RULES (Testing Purpose):
 - Assume the initial leave balance for the user is 15 days.
 - Leave balance is virtual and used for simulation only.
@@ -53,10 +57,10 @@ AGENTS:
 
 DATA EXTRACTION:
 If the user is making a leave request, you MUST extract the following details into the 'leaveDetails' object:
-- startDate (e.g., "Nov 12")
-- endDate (e.g., "Nov 14")
-- leaveType (e.g., "Annual Leave", "Sick Leave")
-If dates are not specified, make a reasonable assumption for today/tomorrow or ask for clarification in the response (but still provide a default for the demo).
+- startDate: Extract explicitly. Format MUST be "YYYY-MM-DD" (e.g., "2025-12-20").
+- endDate: Extract explicitly. Format MUST be "YYYY-MM-DD" (e.g., "2025-12-22"). If the user requests 1 day, endDate must equal startDate.
+- leaveType: (e.g., "Annual Leave", "Sick Leave")
+If dates are not specified, make a reasonable assumption starting from tomorrow (2025-12-16) or ask for clarification.
 
 OUTPUT FORMAT:
 Return a JSON object adhering to this schema:
@@ -66,8 +70,8 @@ Return a JSON object adhering to this schema:
   "action": "Description of the simulated action taken",
   "response": "The final user-facing message",
   "leaveDetails": {
-    "startDate": "extracted start date",
-    "endDate": "extracted end date",
+    "startDate": "extracted start date YYYY-MM-DD",
+    "endDate": "extracted end date YYYY-MM-DD",
     "leaveType": "extracted leave type"
   }
 }
@@ -77,16 +81,15 @@ Professional, helpful, corporate but approachable.
 `;
 
 export const sendMessageToGemini = async (message: string): Promise<AgentResponse> => {
+  const ai = getClient();
+  
   try {
-    const ai = getClient();
-    
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: message,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        maxOutputTokens: 2000, // Limit token usage to prevent infinite loops
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -112,9 +115,7 @@ export const sendMessageToGemini = async (message: string): Promise<AgentRespons
     });
 
     if (response.text) {
-      // Remove potential markdown code blocks
-      const cleanText = response.text.replace(/```json\n?|```/g, '').trim();
-      return JSON.parse(cleanText) as AgentResponse;
+      return JSON.parse(response.text) as AgentResponse;
     }
     
     throw new Error("Empty response from Gemini");
