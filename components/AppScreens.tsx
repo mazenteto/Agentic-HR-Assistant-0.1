@@ -213,7 +213,7 @@ export const SuccessScreen = ({ onBack, data }: { onBack: () => void, data: Leav
       </div>
       <div className="text-left">
         <p className="text-xs text-gray-500 uppercase font-semibold">Notifier Agent</p>
-        <p className="text-sm text-gray-800">I've sent a confirmation email to mohamed.mamdouh@linkdev.com.</p>
+        <p className="text-sm text-gray-800">I've sent a confirmation email to HR@linkdev.com.</p>
       </div>
     </div>
 

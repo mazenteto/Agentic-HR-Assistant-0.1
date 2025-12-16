@@ -21,7 +21,7 @@ GENERAL RULES (Testing Purpose):
 - Assume the initial leave balance for the user is 15 days.
 - Leave balance is virtual and used for simulation only.
 - If a leave request is submitted, simulate deducting the requested days from the balance.
-- Simulate sending an email notification to mohamed.mamdouh@linkdev.com upon leave submission.
+- Simulate sending an email notification to HR@linkdev.com upon leave submission.
 - Do NOT perform real system calls, database updates, or email sending.
 
 CALCULATION RULES (Egypt Locale):
